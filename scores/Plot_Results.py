@@ -76,22 +76,22 @@ def analyzeSingleRun(filename):
     plt.plot(s2,label='p2',alpha=0.5)
     plt.legend()
     plt.show()
-    print('p1:', s1[1940:1945])
-    print('p2:', s2[1940:1945])
+    
     compact_scores = scoresEvery100episodes(scores)
+    
     subplot_results(scores,compact_scores,checkpoint)
     plotResults_overlap(scores,compact_scores,checkpoint)
     plotResults(scores,checkpoint,compacted = False)
     plotResults(compact_scores,checkpoint)
     
     print('Problem solved in {} episodes'.format(checkpoint))
-    print('Best performance obtained in {} episodes'.format(checkpoint_best))    
+    print('Best performance avg {} obtained in {} episodes'.format(np.max(compact_scores),checkpoint_best))    
     print('After being solved, each episode has:')
     print('-Avg score: {}\n-std: {}'.format(np.mean(scores[checkpoint:]),np.std(scores[checkpoint:])))
     
 if __name__ == "__main__": 
     
-    filename = 'scores_MADDPG_train' 
+    filename = 'scores_MADDPG_train_success' 
     analyzeSingleRun(filename)
     """
     max_value = 40

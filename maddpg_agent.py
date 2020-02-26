@@ -14,7 +14,7 @@ import torch.optim as optim
 class MADDPG_Agent():
     def __init__(self, state_size, action_size, num_agents, seed, \
                  gamma=0.99, tau=1e-3, lr_actor=1e-3, lr_critic=1e-2, \
-                 buffer_size = 10e5, buffer_type = 'replay', policy_update = 1):
+                 buffer_size = 1e5, buffer_type = 'replay', policy_update = 1):
         # General info
         self.state_size = state_size
         self.action_size = action_size

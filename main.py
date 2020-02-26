@@ -15,20 +15,20 @@ from collections import deque
 ###############################################################################
 # hyperparams
 GOAL = 0.5
-EPISODES = 3
+EPISODES = 10000
 GAMMA = .99
-TAU = 1e-3
+TAU = 1e-2
 LR_ACTOR = 1e-3
 LR_CRITIC = 1e-3
 BUFFER_SIZE = int(1e5)
 BUFFER_TYPE = 'replay'#'prioritized'
-BATCH_SIZE = 256
+BATCH_SIZE = 128
 POLICY_UPDATE = 1 # for normal updates =1
 SEED = 0
 # other required params
 path = 'Tennis_Linux/Tennis.x86_64'
 algorithm = 'MADDPG'
-mode = 'evaluation'#'evaluation'
+mode = 'train'#'evaluation'
 results_filename = 'scores/scores_' + algorithm + '_' +mode
 ###############################################################################
 
@@ -90,20 +90,23 @@ def train_agent(agent,env,brain_name,n_episodes=300, batch_size = BATCH_SIZE):
     scores_window = deque(maxlen=100)
     print_stats_every = 10
     print_scores_every = 100
-    stop_criteria = 0.5 #+0.5 (over 100 consecutive episodes)
+    stop_criteria = GOAL #+0.5 (over 100 consecutive episodes)
     aux = True
-    checkpoint = 0
+    checkpoint, checkpoint_best = 0,0
     best_weights = [0,0,0]
-    best_score = -np.inf
+    best_score = 1.5
+    max_episodes = n_episodes
+    e = -1
     # ------------------- begin training ------------------- #
-    for e in range(0,n_episodes):
+    while True:
         # --- New Episode --- #
+        e += 1
         # reset the environment
-        visits = 0
         env_info = env.reset(train_mode=True)[brain_name]
         # get the current state
         state = env_info.vector_observations
         score = np.zeros(2)
+        visits = 0
         # --- Generate trajectories --- #
         while True:
             visits += 1
@@ -131,29 +134,41 @@ def train_agent(agent,env,brain_name,n_episodes=300, batch_size = BATCH_SIZE):
         scores2.append(score[1])
         scores.append(np.max(score))
         scores_window.append(np.max(score))
+       
         if e % print_stats_every == 0:
             print('Episode {}/{}\tLast 10 episodes: {:.5f}\tAvg Score: {:.5f}'.format(e,n_episodes,np.mean(scores[-10:]),np.mean(scores_window)))
+        
         if e % print_scores_every == 0:
             plotResults(scores,0,compacted = False)
+            
         if np.mean(scores_window) >= stop_criteria and aux:
             print('Environment solved in {} episodes'.format(e))
             aux = False
             checkpoint = e
+            max_episodes = e + 500 # UPDATE THE NUMBER OF MAX_EPISODES
+            torch.save(agent.actors[0].state_dict(), 'weights/actor' + str(1) + '_model_weights_checkpoint.pth')
+            torch.save(agent.actors[1].state_dict(), 'weights/actor' + str(2) + '_model_weights_checkpoint.pth')
+            torch.save(agent.critic.state_dict(), 'weights/critic_model_weights_checkpoint.pth')
+            
             best_weights[0] = agent.actors[0].state_dict()
             best_weights[1] = agent.actors[1].state_dict()
             best_weights[2] = agent.critic.state_dict()
-        if np.mean(scores_window) > best_score:
-            print('best_score updated at {} episode'.format(e))
-            best_score = np.mean(scores_window)
+       
+        if np.mean(scores[-10:]) > best_score: # max score=2.5 --> if last10 ep avg more than 2 --> save weights
+            best_score = np.mean(scores[-10:])
             checkpoint_best = e
             best_weights[0] = agent.actors[0].state_dict()
             best_weights[1] = agent.actors[1].state_dict()
             best_weights[2] = agent.critic.state_dict()
-        if np.mean(scores_window) >= 2.0: # if it learns too much (slows the time to achieve X episodes)--> stop learning
+        
+        # STOP CRITERIA
+        if e >= max_episodes or np.mean(scores_window) > 2.0:
             break
+        
     # save the model weights
-    print('Environment solved in {} episodes'.format(checkpoint))
-    print('best_score: {:.2f} obtained in {} episode'.format(best_score,checkpoint_e))
+    if checkpoint > 0:
+        print('Environment solved in {} episodes'.format(checkpoint))
+    print('best_score: {:.2f} obtained in {} episode'.format(best_score,checkpoint_best))
     torch.save(best_weights[0], 'weights/actor' + str(1) + '_model_weights.pth')
     torch.save(best_weights[1], 'weights/actor' + str(2) + '_model_weights.pth')
     torch.save(best_weights[2], 'weights/critic_model_weights.pth')
@@ -205,8 +220,8 @@ if __name__ == "__main__":
         with open(results_filename,'wb') as f:
             pickle.dump([scores,s1,s2,checkpoint,checkpoint_best],f)
     elif mode == 'evaluation':
-        w1 = 'weights/actor1_model_weights.pth'
-        w2 = 'weights/actor2_model_weights.pth'
+        w1 = 'weights/actor1_model_weights_checkpoint.pth'
+        w2 = 'weights/actor2_model_weights_checkpoint.pth'
         agent.actors[0].load_state_dict(torch.load(w1))
         agent.actors[0].eval()
         agent.actors[1].load_state_dict(torch.load(w2))
