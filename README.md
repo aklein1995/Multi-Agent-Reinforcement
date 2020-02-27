@@ -4,7 +4,8 @@
 [image2]: https://user-images.githubusercontent.com/10624937/42135622-e55fb586-7d12-11e8-8a54-3c31da15a90a.gif "Soccer"
 
 
-# Project 3: Collaboration and Competition
+# Multi-Agent Reinforcement Learning with DDPG (MADDPG)
+In this project we would implement the MADDPG explained at the paper [Multi-Agent Actor-Critic for Mixed Cooperative-Competitive Environments](https://arxiv.org/abs/1706.02275)
 
 ### Introduction
 
