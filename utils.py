@@ -108,17 +108,7 @@ class PrioritizedExperienceReplay:  # stored as ( s, a, r, s_ ) in SumTree
             priorities.append(p)
             batch.append(data)
             idxs.append(idx)
-        """
-        for i in range(n):
-            a = segment * i
-            b = segment * (i + 1)
 
-            s = random.uniform(a, b)
-            (idx, p, data) = self.tree.get(s)
-            priorities.append(p)
-            batch.append(data)
-            idxs.append(idx)
-        """
         sampling_probabilities = priorities / self.tree.total()
         is_weight = np.power(self.tree.n_entries * sampling_probabilities, -self.beta)
         is_weight /= is_weight.max()
@@ -197,26 +187,31 @@ class SumTree:
 
 
 class NormalNoiseStrategy():
-    def __init__(self, bounds=(-1,1), noise_init = 1.0, noise_decay = 0.9995, exploration_noise_ratio=0.1):
+    def __init__(self, bounds=(-1,1), noise_init = 1.0, noise_decay = 0.995, min_noise_ratio=0.1):
         self.low, self.high = bounds
-        self.exploration_noise_ratio = exploration_noise_ratio
+        self.exploration_noise_ratio = min_noise_ratio
         self.min_noise = self.exploration_noise_ratio * self.high
         self.noise_decay = noise_decay
         self.noise_scale = noise_init
         self.ratio_noise_injected = 0
+
+
+    def update_noise_scale(self):
+        self.noise_scale *= self.noise_decay
 
     def select_action(self, model, state, max_exploration=False):
         """
             Get actions and add gaussian normal noise clipping output values in
             valid ranges
         """
-        if max_exploration:
+        if max_exploration: #max noise_scale
             self.noise_scale = self.high
-        # elif :
+        # elif self.noise_decay == 0: #set constant noise_scale
         #     self.noise_scale = self.exploration_noise_ratio * self.high
         else:
-            self.noise_scale = max(self.noise_scale*self.noise_decay, self.min_noise)
-            
+            self.update_noise_scale()
+            self.noise_scale = max(self.noise_scale, self.min_noise)
+
         with torch.no_grad():
             greedy_action = model(state).cpu().detach().data.numpy().squeeze()
 

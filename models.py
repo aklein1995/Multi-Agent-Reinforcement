@@ -5,14 +5,13 @@ import torch.nn.functional as F
 from torch.distributions import Normal
 
 class DDPG_Critic(nn.Module):
-    def __init__(self, state_size = 24, action_size = 2, num_agents = 2, hidden_dims=(64,64), seed = 0):
+    def __init__(self, state_size = 24, action_size = 2, num_agents = 2, hidden_dims=(64,64)):
         """
             state length: 24
             action length: 2
             num agents: 2
         """
         super(DDPG_Critic, self).__init__()
-        self.seed = torch.manual_seed(seed)
         # ARCHITECTURE
         self.input_layer = nn.Linear(num_agents*(state_size), hidden_dims[0])
         self.hidden_layers = nn.ModuleList()
@@ -31,6 +30,27 @@ class DDPG_Critic(nn.Module):
             device = "cuda:0"
         self.device = torch.device(device)
         self.to(self.device)
+        # weights and bias init
+        self.weigths_bias_initialization()
+
+    def weigths_bias_initialization(self):
+        import math
+
+        std = 3e-3
+        self.output_layer.weight.data.uniform_(-std,std) #uniform distribution
+        self.output_layer.bias.data.uniform_(-std,std) #uniform distribution
+
+        fan_in = self.input_layer.in_features
+        std = 1/math.sqrt(fan_in)
+        self.input_layer.weight.data.uniform_(-std,std)
+        self.input_layer.bias.data.uniform_(std,std)
+
+        for i,hidden_layer in enumerate(self.hidden_layers):
+            fan_in = hidden_layer.in_features
+            std = 1/math.sqrt(fan_in)
+            hidden_layer.weight.data.uniform_(-std,std)
+            hidden_layer.bias.data.uniform_(-std,std)
+
 
     def _format(self, state, action):
         x, y = state, action
@@ -53,9 +73,8 @@ class DDPG_Critic(nn.Module):
 
 
 class DDPG_Actor(nn.Module):
-    def __init__(self, state_size, action_size=4, action_bounds=(-1,1), hidden_dims=(64,64), seed=0):
+    def __init__(self, state_size, action_size=4, action_bounds=(-1,1), hidden_dims=(64,64)):
         super(DDPG_Actor, self).__init__()
-        self.seed = torch.manual_seed(seed)
         # ARCHITECTURE
         self.input_layer = nn.Linear(state_size, hidden_dims[0])
         self.hidden_layers = nn.ModuleList()
@@ -80,6 +99,26 @@ class DDPG_Actor(nn.Module):
         self.nn_min = self.out_activation_fc(torch.Tensor([float('-inf')])).to(self.device)
         self.nn_max = self.out_activation_fc(torch.Tensor([float('inf')])).to(self.device)
         self.rescale_fn = lambda x: (x - self.nn_min) * (self.env_max - self.env_min) / (self.nn_max - self.nn_min) + self.env_min
+        # weights and bias init
+        self.weigths_bias_initialization()
+
+    def weigths_bias_initialization(self):
+        import math
+
+        std = 3e-3
+        self.output_layer.weight.data.uniform_(-std,std) #uniform distribution
+        self.output_layer.bias.data.uniform_(-std,std) #uniform distribution
+
+        fan_in = self.input_layer.in_features
+        std = 1/math.sqrt(fan_in)
+        self.input_layer.weight.data.uniform_(-std,std)
+        self.input_layer.bias.data.uniform_(std,std)
+
+        for i,hidden_layer in enumerate(self.hidden_layers):
+            fan_in = hidden_layer.in_features
+            std = 1/math.sqrt(fan_in)
+            hidden_layer.weight.data.uniform_(-std,std)
+            hidden_layer.bias.data.uniform_(-std,std)
 
     def _format(self, state):
         x = state
