@@ -32,7 +32,7 @@ NOISE_DECAY = 0.9995
 NOISE_MIN = 0.1
 # other required params
 env_path = 'Tennis_Linux/Tennis.x86_64'
-mode = 'train'#'evaluation'
+mode = 'evaluation'#'evaluation'
 ###############################################################################
 
 def generateTestFolder():
@@ -182,6 +182,7 @@ def train_agent(agent,env,brain_name,n_episodes=300, batch_size = BATCH_SIZE):
 
 def evaluate_agent(agent,env,brain_name,n_episodes=1):
     scores = []
+    input()
     # ------------------- begin training ------------------- #
     for e in range(1,n_episodes+1):
         # --- New Episode --- #
@@ -270,13 +271,15 @@ if __name__ == "__main__":
         fig.savefig(result_folder_path + '/scores.png')
 
     elif mode == 'evaluation':
-        w1 = 'weights/actor1_model_weights_checkpoint.pth'
-        w2 = 'weights/actor2_model_weights_checkpoint.pth'
+        w1 = 'results/test_1/actor1_model_weights_checkpoint.pth'
+        # w1 = 'results/test_1/actor1_model_weights_best.pth'
+        w2 = 'results/test_1/actor2_model_weights_checkpoint.pth'
+        # w2 = 'results/test_1/actor2_model_weights_best.pth'
         agent.actors[0].load_state_dict(torch.load(w1))
         agent.actors[0].eval()
         agent.actors[1].load_state_dict(torch.load(w2))
         agent.actors[1].eval()
-        scores = evaluate_agent(agent,env,brain_name,n_episodes=EPISODES)
+        scores = evaluate_agent(agent,env,brain_name,n_episodes=3)
         checkpoint = None
     # close env
     env.close()
