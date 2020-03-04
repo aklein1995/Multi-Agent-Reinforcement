@@ -7,7 +7,7 @@
 # Multi-Agent Reinforcement Learning with DDPG (MADDPG)
 In this project we would implement the MADDPG explained at the paper [Multi-Agent Actor-Critic for Mixed Cooperative-Competitive Environments](https://arxiv.org/abs/1706.02275)
 
-### Introduction
+## Introduction
 
 For this project, we will work with the [Tennis](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#tennis) environment.
 
@@ -24,7 +24,48 @@ The task is episodic, and in order to solve the environment, your agents must ge
 
 The environment is considered solved, when the average (over 100 episodes) of those **scores** is at least +0.5.
 
-### Getting Started
+## Getting Started
+
+### Dependencies
+To set up the python environment to run the code in this repository, the easiest way is to import the project environment in your conda.  
+- __Linux, Ubuntu 18.04 LTS__:
+```bash
+conda env create -f drlnd_environment.yml
+```
+
+If the above has not worked or is not a feasible solution, follow the instructions below.
+
+1. Create (and activate) a new environment with Python 3.6.
+
+	- __Linux__ or __Mac__: 
+	```bash
+	conda create --name drlnd python=3.6
+	source activate drlnd
+	```
+	- __Windows__: 
+	```bash
+	conda create --name drlnd python=3.6 
+	activate drlnd
+	```
+	
+2. Follow the instructions in [this repository](https://github.com/openai/gym) to perform a minimal install of OpenAI gym.  
+	- Next, install the **classic control** environment group by following the instructions [here](https://github.com/openai/gym#classic-control).
+	- Then, install the **box2d** environment group by following the instructions [here](https://github.com/openai/gym#box2d).
+	
+3. Clone [this repository](https://github.com/udacity/deep-reinforcement-learning), and navigate to the `python/` folder.  Then, install several dependencies.
+```bash
+git clone https://github.com/udacity/deep-reinforcement-learning.git
+cd deep-reinforcement-learning/python
+pip install .
+```
+
+4. If you are going to use Jupyter Notebook, create an [IPython kernel](http://ipython.readthedocs.io/en/stable/install/kernel_install.html) for the `drlnd` environment.  
+```bash
+python -m ipykernel install --user --name drlnd --display-name "drlnd"
+```
+Before running code in a notebook, change the kernel to match the `drlnd` environment by using the drop-down `Kernel` menu. 
+
+### Environment
 
 1. Download the environment from one of the links below.  You need only select the environment that matches your operating system:
     - Linux: [click here](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P3/Tennis/Tennis_Linux.zip)
@@ -38,6 +79,8 @@ The environment is considered solved, when the average (over 100 episodes) of th
 
 2. Place the file in the DRLND GitHub repository, in the `p3_collab-compet/` folder, and unzip (or decompress) the file. 
 
-### Instructions
+## Instructions
 
-Follow the instructions in `Tennis.ipynb` to get started with training your own agent!  
+Follow the instructions in `Tennis.ipynb` to get started with training your own agent!
+
+For more information about the project itself, I encourage you to read the `DRLND_P3_Report.pdf`. If you still have more questions, do not hesitate and contact me.
