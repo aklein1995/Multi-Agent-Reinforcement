@@ -84,3 +84,5 @@ Before running code in a notebook, change the kernel to match the `drlnd` enviro
 Follow the instructions in `Tennis.ipynb` to get started with training your own agent!
 
 For more information about the project itself, I encourage you to read the `DRLND_P3_Report.pdf`. If you still have more questions, do not hesitate and contact me.
+
+The result of one of the succesfull test its showed at `tennis_evaluation_agents.mkv`. Donwload and show the agents perform!
